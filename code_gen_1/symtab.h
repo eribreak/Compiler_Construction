@@ -1,7 +1,14 @@
+/* 
+ * @copyright (c) 2008, Hedspi, Hanoi University of Technology
+ * @author Huu-Duc Nguyen
+ * @version 1.0
+ */
+
 #ifndef __SYMTAB_H__
 #define __SYMTAB_H__
 
 #include "token.h"
+#include "instructions.h"
 
 enum TypeClass {
   TP_INT,
@@ -55,6 +62,8 @@ struct ConstantAttributes_ {
 struct VariableAttributes_ {
   Type *type;
   struct Scope_ *scope;
+
+  int localOffset;        // offset of the local variable calculated from the base of the stack frame
 };
 
 struct TypeAttributes_ {
@@ -64,22 +73,31 @@ struct TypeAttributes_ {
 struct ProcedureAttributes_ {
   struct ObjectNode_ *paramList;
   struct Scope_* scope;
+
+  int paramCount;
+  CodeAddress codeAddress;
 };
 
 struct FunctionAttributes_ {
   struct ObjectNode_ *paramList;
   Type* returnType;
   struct Scope_ *scope;
+
+  int paramCount;
+  CodeAddress codeAddress;
 };
 
 struct ProgramAttributes_ {
   struct Scope_ *scope;
+  CodeAddress codeAddress;
 };
 
 struct ParameterAttributes_ {
   enum ParamKind kind;
   Type* type;
-  struct Object_ *function;
+  struct Scope_ *scope;
+
+  int localOffset;
 };
 
 typedef struct ConstantAttributes_ ConstantAttributes;
@@ -117,6 +135,7 @@ struct Scope_ {
   ObjectNode *objList;
   Object *owner;
   struct Scope_ *outer;
+  int frameSize;
 };
 
 typedef struct Scope_ Scope;
@@ -135,12 +154,13 @@ Type* makeArrayType(int arraySize, Type* elementType);
 Type* duplicateType(Type* type);
 int compareType(Type* type1, Type* type2);
 void freeType(Type* type);
+int sizeOfType(Type* type);
 
 ConstantValue* makeIntConstant(int i);
 ConstantValue* makeCharConstant(char ch);
 ConstantValue* duplicateConstantValue(ConstantValue* v);
 
-Scope* createScope(Object* owner, Scope* outer);
+Scope* createScope(Object* owner);
 
 Object* createProgramObject(char *programName);
 Object* createConstantObject(char *name);
@@ -148,7 +168,7 @@ Object* createTypeObject(char *name);
 Object* createVariableObject(char *name);
 Object* createFunctionObject(char *name);
 Object* createProcedureObject(char *name);
-Object* createParameterObject(char *name, enum ParamKind kind, Object* owner);
+Object* createParameterObject(char *name, enum ParamKind kind);
 
 Object* findObject(ObjectNode *objList, char *name);
 
@@ -156,7 +176,6 @@ void initSymTab(void);
 void cleanSymTab(void);
 void enterBlock(Scope* scope);
 void exitBlock(void);
-Object* lookupObject(char *name);
 void declareObject(Object* obj);
 
 #endif
