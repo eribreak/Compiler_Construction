@@ -1,9 +1,3 @@
-/* 
- * @copyright (c) 2008, Hedspi, Hanoi University of Technology
- * @author Huu-Duc Nguyen
- * @version 1.0
- */
-
 #ifndef __SEMANTICS_H__
 #define __SEMANTICS_H__
 
